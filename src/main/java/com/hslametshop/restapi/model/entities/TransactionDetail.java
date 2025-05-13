@@ -1,5 +1,6 @@
 package com.hslametshop.restapi.model.entities;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -13,7 +14,10 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_detail_transaction")
-public class TransactionDetail {
+public class TransactionDetail implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "detail_id")
