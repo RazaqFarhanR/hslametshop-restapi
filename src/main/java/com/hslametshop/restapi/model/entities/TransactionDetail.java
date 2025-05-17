@@ -24,8 +24,12 @@ public class TransactionDetail implements Serializable {
     private UUID detailId;
 
     @ManyToOne
-    @JoinColumn(name = "invoice_id")
+    @JoinColumn(name = "invoice_id", referencedColumnName = "invoice_id")
     private Transaction transaction;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "product_id")
+    private Product product;
 
     @Column(name = "quantity")
     private int qty;
@@ -36,6 +40,10 @@ public class TransactionDetail implements Serializable {
     @Column(name = "notes")
     private String notes;
 
+    public Product getProduct() {
+        return product;
+    }
+
     public TransactionDetail(UUID detailId, UUID invoiceId, int qty, double subtotal, String notes) {
         this.detailId = detailId;
         this.qty = qty;
@@ -45,6 +53,30 @@ public class TransactionDetail implements Serializable {
 
     public UUID getDetailId() {
         return detailId;
+    }
+
+    public void setDetailId(UUID detailId) {
+        this.detailId = detailId;
+    }
+
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public void setQty(int qty) {
+        this.qty = qty;
+    }
+
+    public void setSubtotal(double subtotal) {
+        this.subtotal = subtotal;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public int getQty() {

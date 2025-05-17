@@ -16,6 +16,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -36,6 +38,10 @@ public class Transaction implements Serializable {
 
     @Column(name = "total_amount")
     private double totalAmount;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", referencedColumnName = "user_id")
+    private Member member;
 
     @Column(name = "transaction_status")
     @Enumerated(EnumType.STRING)
@@ -69,6 +75,22 @@ public class Transaction implements Serializable {
 
     public void setStatus(TransactionStatusEnum status) {
         this.status = status;
+    }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public List<TransactionDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<TransactionDetail> details) {
+        this.details = details;
     }
 
     public void setTrxDate(LocalDateTime trxDate) {

@@ -16,9 +16,9 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "tbl_product")
 public class Product {
-    
+
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_id")
     private UUID productId;
 
@@ -41,7 +41,11 @@ public class Product {
     @Column(name = "product_description")
     private String description;
 
-    public Product(UUID productID, String name, CategoryEnum category, double price, int stock, double discount, String desciption) {
+    public Product() {
+    }
+
+    public Product(UUID productID, String name, CategoryEnum category, double price, int stock, double discount,
+            String desciption) {
         this.productId = productID;
         this.category = category;
         this.name = name;
@@ -107,5 +111,4 @@ public class Product {
         this.description = description;
     }
 
-    
 }

@@ -13,6 +13,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,6 +24,7 @@ public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "user_id")
     private UUID userId;
 
     @Column(name = "name")
@@ -40,7 +43,8 @@ public abstract class User {
     @Column(name = "role")
     private UserRolesEnum role;
 
-    public User() {}
+    public User() {
+    }
 
     public User(UUID userId, String name, String phoneNumber, String email, String pass) {
         this.userId = userId;
@@ -48,6 +52,16 @@ public abstract class User {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.pass = pass;
+    }
+
+    @PrePersist
+    @PreUpdate
+    private void enforceCorrectRole() {
+        if (this instanceof Member && role != UserRolesEnum.MEMBER) {
+            throw new IllegalStateException("Role mismatch: Member must have role MEMBER");
+        } else if (this instanceof Admin && role != UserRolesEnum.ADMIN) {
+            throw new IllegalStateException("Role mismatch: Admin must have role ADMIN");
+        }
     }
 
     public UUID getId() {
