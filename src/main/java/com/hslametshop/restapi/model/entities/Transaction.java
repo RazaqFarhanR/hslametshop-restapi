@@ -1,5 +1,7 @@
 package com.hslametshop.restapi.model.entities;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,9 +18,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-
-import java.io.Serializable;
-import java.time.*;
 
 @Entity
 @Table(name = "tbl_transaction")
