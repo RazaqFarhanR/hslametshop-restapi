@@ -57,6 +57,10 @@ public class Transaction implements Serializable {
         this.status = status;
     }
 
+    public Transaction() {
+        // Default constructor
+    }
+
     public UUID getInvoiceId() {
         return invoiceId;
     }

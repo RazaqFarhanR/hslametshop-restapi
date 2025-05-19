@@ -51,6 +51,9 @@ public class TransactionDetail implements Serializable {
         this.notes = notes;
     }
 
+    public TransactionDetail() {
+    }
+
     public UUID getDetailId() {
         return detailId;
     }

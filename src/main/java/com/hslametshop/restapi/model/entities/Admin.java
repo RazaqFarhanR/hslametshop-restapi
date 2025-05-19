@@ -1,6 +1,5 @@
 package com.hslametshop.restapi.model.entities;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 import com.hslametshop.restapi.model.interfaces.UserRolesEnum;
@@ -10,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tbl_admin")
-public class Admin extends User implements Serializable {
+public class Admin extends User {
 
     public Admin(String name, String pnumber, String email, String pass, UUID userId) {
         super(userId, pnumber, email, pass, name);

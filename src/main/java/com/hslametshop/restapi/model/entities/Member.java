@@ -1,6 +1,5 @@
 package com.hslametshop.restapi.model.entities;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,7 +13,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "tbl_member")
 
-public class Member extends User implements Serializable {
+public class Member extends User {
 
     @Column(name = "address")
     private String address;
