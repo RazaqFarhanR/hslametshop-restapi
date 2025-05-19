@@ -1,5 +1,6 @@
 package com.hslametshop.restapi.model.entities;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.hslametshop.restapi.model.interfaces.CategoryEnum;
@@ -11,6 +12,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -41,11 +43,14 @@ public class Product {
     @Column(name = "product_description")
     private String description;
 
+    @OneToMany(mappedBy = "product")
+    private List<ProductImages> images;
+
     public Product() {
     }
 
     public Product(UUID productID, String name, CategoryEnum category, double price, int stock, double discount,
-            String desciption) {
+            String desciption, List<ProductImages> images) {
         this.productId = productID;
         this.category = category;
         this.name = name;
@@ -53,6 +58,7 @@ public class Product {
         this.stock = stock;
         this.discount = discount;
         this.description = desciption;
+        this.images = images;
     }
 
     public UUID getProductId() {
@@ -109,6 +115,14 @@ public class Product {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<ProductImages> getImage() {
+        return images;
+    }
+
+    public void setImage(List<ProductImages> images) {
+        this.images = images;
     }
 
 }
