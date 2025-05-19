@@ -94,4 +94,8 @@ public class TransactionDetail implements Serializable {
         return notes;
     }
 
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
 }

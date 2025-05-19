@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hslametshop.restapi.model.interfaces.TransactionStatusEnum;
@@ -32,6 +34,7 @@ public class Transaction implements Serializable {
     @Column(name = "invoice_id")
     private UUID invoiceId;
 
+    @CreationTimestamp
     @Column(name = "transaction_date")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime trxDate;
