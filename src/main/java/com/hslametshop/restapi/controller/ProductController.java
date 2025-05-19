@@ -26,7 +26,6 @@ public class ProductController {
 
     @GetMapping
     public List<Product> findAll() {
-        System.out.println("findAll: " + productService.findAllProduct());
         return productService.findAllProduct();
     }
 
