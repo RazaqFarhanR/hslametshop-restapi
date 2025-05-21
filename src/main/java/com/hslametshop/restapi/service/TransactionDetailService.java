@@ -30,8 +30,4 @@ public class TransactionDetailService {
         return filteredTransactionDetails;
     }
 
-    public TransactionDetail createTransactionDetail(TransactionDetail transactionDetail) {
-        return transactionDetailRepository.save(transactionDetail);
-    }
-
 }
