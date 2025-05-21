@@ -40,6 +40,8 @@ public class SecurityConfig {
                 .permitAll()
                 .requestMatchers("/v3/**")
                 .permitAll()
+                .requestMatchers("/api")
+                .permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
