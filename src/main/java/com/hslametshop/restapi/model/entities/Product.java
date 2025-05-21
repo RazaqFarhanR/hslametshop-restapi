@@ -1,8 +1,14 @@
 package com.hslametshop.restapi.model.entities;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hslametshop.restapi.model.interfaces.CategoryEnum;
 
 import jakarta.persistence.Column;
@@ -46,19 +52,30 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private List<ProductImages> images;
 
+    @CreationTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @Column(updatable = false, name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
     public Product() {
     }
 
-    public Product(UUID productID, String name, CategoryEnum category, double price, int stock, double discount,
-            String desciption, List<ProductImages> images) {
-        this.productId = productID;
+    public Product(UUID productId, CategoryEnum category, String name, double price, int stock, double discount,
+            String description, List<ProductImages> images, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.productId = productId;
         this.category = category;
         this.name = name;
         this.price = price;
         this.stock = stock;
         this.discount = discount;
-        this.description = desciption;
+        this.description = description;
         this.images = images;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
     public UUID getProductId() {
@@ -117,12 +134,28 @@ public class Product {
         this.description = description;
     }
 
-    public List<ProductImages> getImage() {
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public List<ProductImages> getImages() {
         return images;
     }
 
-    public void setImage(List<ProductImages> images) {
+    public void setImages(List<ProductImages> images) {
         this.images = images;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
 }

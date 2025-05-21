@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
 import com.hslametshop.restapi.service.ProductService;
 
@@ -25,46 +27,122 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> findAll() {
-        return productService.findAllProduct();
+    public ResponseEntity<List<ProductResponse>> findAll() {
+        try {
+            List<ProductResponse> products = productService.findAllProduct();
+            if (products.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok().body(products);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Product create(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public ResponseEntity<Product> create(@RequestBody Product product) {
+        try {
+            Product p = productService.createProduct(product);
+            if (p == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok().body(p);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public Product update(@RequestBody Product product, @PathVariable("id") UUID id) {
-        return productService.updateProduct(product, id);
+    public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable("id") UUID id) {
+        try {
+            Product p = productService.updateProduct(product, id);
+            if (p == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok().body(p);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public void delete(@PathVariable("id") UUID id) {
-        productService.deleteProduct(id);
+    public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok().body("Product deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
-    public Product findOne(@PathVariable("id") UUID id) {
-        return productService.findOneProduct(id);
+    public ResponseEntity<ProductResponse> findOne(@PathVariable("id") UUID id) {
+        try {
+            ProductResponse product = productService.findOneProduct(id);
+            if (product == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok().body(product);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/{name}")
-    public List<Product> findByName(@PathVariable("name") String name) {
-        return productService.findProductsByName(name);
+    public ResponseEntity<List<ProductResponse>> findByName(@PathVariable("name") String name) {
+        try {
+            List<ProductResponse> products = productService.findProductsByName(name);
+            if (products.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(products);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/category/{category}")
-    public List<Product> findByCategory(@PathVariable("category") String category) {
-        return productService.findProductsByCategory(category);
+    public ResponseEntity<List<ProductResponse>> findByCategory(@PathVariable("category") String category) {
+        try {
+            List<ProductResponse> products = productService.findProductsByCategory(category);
+            if (products.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(products);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/price/{minPrice}/{maxPrice}")
-    public List<Product> findByPriceBetween(@PathVariable("minPrice") Double minPrice,
+    public ResponseEntity<List<ProductResponse>> findByPriceBetween(@PathVariable("minPrice") Double minPrice,
             @PathVariable("maxPrice") Double maxPrice) {
-        return productService.findProductsByPriceBetween(minPrice, maxPrice);
+        try {
+            if (minPrice < 0 || maxPrice < 0) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (minPrice > maxPrice) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (minPrice == maxPrice) {
+                return ResponseEntity.badRequest().build();
+            }
+            if (minPrice == null || maxPrice == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            List<ProductResponse> products = productService.findProductsByPriceBetween(minPrice, maxPrice);
+            if (products.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok().body(products);
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

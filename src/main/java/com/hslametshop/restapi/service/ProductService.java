@@ -8,8 +8,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
+import com.hslametshop.restapi.model.entities.ProductImages;
 import com.hslametshop.restapi.model.interfaces.CategoryEnum;
+import com.hslametshop.restapi.model.repositories.ProductImagesRepository;
 import com.hslametshop.restapi.model.repositories.ProductRepository;
 
 import jakarta.transaction.Transactional;
@@ -21,8 +24,43 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<Product> findAllProduct() {
-        return (List<Product>) productRepository.findAll();
+    @Autowired
+    private ProductImagesRepository productImagesRepository;
+
+    public List<ProductResponse> findAllProduct() {
+        List<ProductResponse> productResponses = new ArrayList<>();
+        List<Product> products = (List<Product>) productRepository.findAll();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        if (products.isEmpty()) {
+            throw new NoSuchElementException("No products found");
+        }
+        for (Product product : products) {
+            ProductResponse productResponse = new ProductResponse();
+            for (ProductImages productImage : productImages) {
+                if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                    productResponse.getImages().add(productImage.getImageUrl());
+                }
+            }
+            productResponse.setId(product.getProductId());
+            productResponse.setName(product.getName());
+            productResponse.setDescription(product.getDescription());
+            productResponse.setCategory(product.getCategory().toString());
+
+            productResponse.setDiscount(product.getDiscount());
+            if (product.getDiscount() > 0) {
+                productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                productResponse.setOldPrice(product.getPrice());
+            } else {
+                productResponse.setPrice(product.getPrice());
+                productResponse.setOldPrice(null);
+            }
+            productResponse.setImageAlt("IMG:" + product.getName());
+            productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+            productResponse.setStock(product.getStock());
+
+            productResponses.add(productResponse);
+        }
+        return productResponses;
     }
 
     public Product createProduct(Product product) {
@@ -33,37 +71,107 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public Product findOneProduct(UUID id) {
-        try {
-            return productRepository.findById(id).orElseThrow();
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Product not found with id: " + id);
+    public ProductResponse findOneProduct(UUID id) {
+        Product product = productRepository.findById(id).get();
+        ProductResponse productResponse = new ProductResponse();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        if (product == null) {
+            throw new NoSuchElementException("No products found");
         }
+        for (ProductImages productImage : productImages) {
+            if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                productResponse.getImages().add(productImage.getImageUrl());
+            }
+        }
+        productResponse.setId(product.getProductId());
+        productResponse.setName(product.getName());
+        productResponse.setDescription(product.getDescription());
+        productResponse.setCategory(product.getCategory().toString());
+
+        productResponse.setDiscount(product.getDiscount());
+        if (product.getDiscount() > 0) {
+            productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+            productResponse.setOldPrice(product.getPrice());
+        } else {
+            productResponse.setPrice(product.getPrice());
+            productResponse.setOldPrice(null);
+        }
+        productResponse.setImageAlt("IMG:" + product.getName());
+        productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+        productResponse.setStock(product.getStock());
+        return productResponse;
     }
 
-    public List<Product> findProductsByName(String name) {
+    public List<ProductResponse> findProductsByName(String name) {
         List<Product> products = (List<Product>) productRepository.findAll();
+
         if (products.isEmpty()) {
             throw new NoSuchElementException("No products found");
         }
-        List<Product> foundProducts = new ArrayList<>();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
             if (product.getName().contains(name)) {
-                foundProducts.add(product);
+                ProductResponse productResponse = new ProductResponse();
+                for (ProductImages productImage : productImages) {
+                    if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                        productResponse.getImages().add(productImage.getImageUrl());
+                    }
+                }
+                productResponse.setId(product.getProductId());
+                productResponse.setName(product.getName());
+                productResponse.setDescription(product.getDescription());
+                productResponse.setCategory(product.getCategory().toString());
+
+                productResponse.setDiscount(product.getDiscount());
+                if (product.getDiscount() > 0) {
+                    productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                    productResponse.setOldPrice(product.getPrice());
+                } else {
+                    productResponse.setPrice(product.getPrice());
+                    productResponse.setOldPrice(null);
+                }
+                productResponse.setImageAlt("IMG:" + product.getName());
+                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setStock(product.getStock());
+                foundProducts.add(productResponse);
             }
         }
         return foundProducts;
     }
 
-    public List<Product> findProductsByCategory(String category) {
+    public List<ProductResponse> findProductsByCategory(String category) {
         List<Product> products = (List<Product>) productRepository.findAll();
         if (products.isEmpty()) {
             throw new NoSuchElementException("No products found");
         }
-        List<Product> foundProducts = new ArrayList<>();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
             if (product.getCategory().equals(CategoryEnum.valueOf(category))) {
-                foundProducts.add(product);
+                ProductResponse productResponse = new ProductResponse();
+                for (ProductImages productImage : productImages) {
+                    if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                        productResponse.getImages().add(productImage.getImageUrl());
+                    }
+                }
+                productResponse.setId(product.getProductId());
+                productResponse.setName(product.getName());
+                productResponse.setDescription(product.getDescription());
+                productResponse.setCategory(product.getCategory().toString());
+
+                productResponse.setDiscount(product.getDiscount());
+                if (product.getDiscount() > 0) {
+                    productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                    productResponse.setOldPrice(product.getPrice());
+                } else {
+                    productResponse.setPrice(product.getPrice());
+                    productResponse.setOldPrice(null);
+                }
+                productResponse.setImageAlt("IMG:" + product.getName());
+                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setStock(product.getStock());
+                foundProducts.add(productResponse);
             }
         }
         return foundProducts;
@@ -71,7 +179,7 @@ public class ProductService {
 
     public Product updateProduct(Product product, UUID id) {
         try {
-            Product data = findOneProduct(id);
+            Product data = productRepository.findById(id).get();
             data.setName(product.getName());
             data.setCategory(product.getCategory());
             data.setDescription(product.getDescription());
@@ -83,18 +191,40 @@ public class ProductService {
         } catch (NoSuchElementException e) {
             throw new NoSuchElementException("Product not found with id: " + id);
         }
-
     }
 
-    public List<Product> findProductsByPriceBetween(Double minPrice, Double maxPrice) {
+    public List<ProductResponse> findProductsByPriceBetween(Double minPrice, Double maxPrice) {
         List<Product> products = (List<Product>) productRepository.findAll();
         if (products.isEmpty()) {
             throw new NoSuchElementException("No products found");
         }
-        List<Product> foundProducts = new ArrayList<>();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
             if (product.getPrice() >= minPrice && product.getPrice() <= maxPrice) {
-                foundProducts.add(product);
+                ProductResponse productResponse = new ProductResponse();
+                for (ProductImages productImage : productImages) {
+                    if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                        productResponse.getImages().add(productImage.getImageUrl());
+                    }
+                }
+                productResponse.setId(product.getProductId());
+                productResponse.setName(product.getName());
+                productResponse.setDescription(product.getDescription());
+                productResponse.setCategory(product.getCategory().toString());
+
+                productResponse.setDiscount(product.getDiscount());
+                if (product.getDiscount() > 0) {
+                    productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                    productResponse.setOldPrice(product.getPrice());
+                } else {
+                    productResponse.setPrice(product.getPrice());
+                    productResponse.setOldPrice(null);
+                }
+                productResponse.setImageAlt("IMG:" + product.getName());
+                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setStock(product.getStock());
+                foundProducts.add(productResponse);
             }
         }
         return foundProducts;
