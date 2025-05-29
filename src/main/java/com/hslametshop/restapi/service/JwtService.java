@@ -89,7 +89,7 @@ public class JwtService {
         Claims claims = extractAllClaims(token);
         claims.setSubject(claims.getSubject());
         claims.setIssuedAt(new Date(System.currentTimeMillis()));
-        claims.setExpiration(new Date(System.currentTimeMillis() + expiration + 600000));
+        claims.setExpiration(new Date(System.currentTimeMillis() + expiration + 900000));
         return Jwts.builder()
                 .setClaims(claims)
                 .signWith(getSignInKey())
