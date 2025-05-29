@@ -31,6 +31,14 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractHeaderAlg(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getHeader().getAlgorithm();
+    }
+
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -79,8 +87,9 @@ public class JwtService {
 
     public String refreshToken(String token) {
         Claims claims = extractAllClaims(token);
+        claims.setSubject(claims.getSubject());
         claims.setIssuedAt(new Date(System.currentTimeMillis()));
-        claims.setExpiration(new Date(System.currentTimeMillis() + expiration));
+        claims.setExpiration(new Date(System.currentTimeMillis() + expiration + 600000));
         return Jwts.builder()
                 .setClaims(claims)
                 .signWith(getSignInKey())
