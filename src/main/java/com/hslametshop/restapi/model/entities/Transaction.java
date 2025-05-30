@@ -11,10 +11,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hslametshop.restapi.model.interfaces.TransactionStatusEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,7 +52,7 @@ public class Transaction implements Serializable {
     @Enumerated(EnumType.STRING)
     private TransactionStatusEnum status;
 
-    @OneToMany(mappedBy = "transaction")
+    @OneToMany(mappedBy = "transaction", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<TransactionDetail> details;
 
     public Transaction(UUID invoiceId, LocalDateTime trxDate, double totalAmount, TransactionStatusEnum status) {

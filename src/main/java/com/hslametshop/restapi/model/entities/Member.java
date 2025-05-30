@@ -5,8 +5,10 @@ import java.util.UUID;
 
 import com.hslametshop.restapi.model.interfaces.UserRolesEnum;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -21,7 +23,7 @@ public class Member extends User {
     @Column(name = "is_banned")
     private boolean isBanned;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
     public Member(String name, String pnumber, String email, String pass, UUID userId, String address,
