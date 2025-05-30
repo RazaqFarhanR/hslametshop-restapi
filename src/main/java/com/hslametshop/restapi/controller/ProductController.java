@@ -80,7 +80,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/one/{id}")
     public ResponseEntity<ProductResponse> findOne(@PathVariable("id") UUID id) {
         try {
             ProductResponse product = productService.findOneProduct(id);

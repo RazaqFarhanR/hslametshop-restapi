@@ -56,7 +56,7 @@ public class ProductService {
                 productResponse.setOldPrice(null);
             }
             productResponse.setImageAlt("IMG:" + product.getName());
-            productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+            productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
             productResponse.setStock(product.getStock());
 
             productResponses.add(productResponse);
@@ -123,7 +123,7 @@ public class ProductService {
             productResponse.setOldPrice(null);
         }
         productResponse.setImageAlt("IMG:" + product.getName());
-        productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+        productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
         productResponse.setStock(product.getStock());
         return productResponse;
     }
@@ -158,7 +158,7 @@ public class ProductService {
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -195,7 +195,7 @@ public class ProductService {
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -263,7 +263,7 @@ public class ProductService {
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setNew(product.getCreatedAt().isAfter(product.getCreatedAt().minusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }

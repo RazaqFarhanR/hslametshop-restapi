@@ -98,11 +98,11 @@ public class ProductResponse {
         this.imageAlt = imageAlt;
     }
 
-    public boolean isNew() {
+    public boolean getIsNew() {
         return isNew;
     }
 
-    public void setNew(boolean isNew) {
+    public void setIsNew(boolean isNew) {
         this.isNew = isNew;
     }
 
