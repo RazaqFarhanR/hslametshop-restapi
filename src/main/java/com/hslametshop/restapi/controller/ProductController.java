@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
+import com.hslametshop.restapi.model.entities.ProductImages;
 import com.hslametshop.restapi.service.ProductService;
 
 @RestController
@@ -49,6 +50,20 @@ public class ProductController {
                 return ResponseEntity.badRequest().build();
             }
             return ResponseEntity.ok().body(p);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/img")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ProductImages> createImage(@RequestBody ProductImages productImage) {
+        try {
+            ProductImages img = productService.createProductImage(productImage);
+            if (img == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok().body(img);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }

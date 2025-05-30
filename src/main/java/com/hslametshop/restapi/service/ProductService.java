@@ -67,6 +67,10 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    public ProductImages createProductImage(ProductImages productImages) {
+        return productImagesRepository.save(productImages);
+    }
+
     public void deleteProduct(UUID id) {
         productRepository.deleteById(id);
     }
@@ -201,7 +205,9 @@ public class ProductService {
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
-            if (product.getPrice() >= minPrice && product.getPrice() <= maxPrice) {
+            if (product.getPrice() - (product.getPrice() * product.getDiscount()
+                    / 100) >= minPrice && product.getPrice()
+                            - (product.getPrice() * product.getDiscount() / 100) <= maxPrice) {
                 ProductResponse productResponse = new ProductResponse();
                 for (ProductImages productImage : productImages) {
                     if (product.getProductId().equals(productImage.getProduct().getProductId())) {
