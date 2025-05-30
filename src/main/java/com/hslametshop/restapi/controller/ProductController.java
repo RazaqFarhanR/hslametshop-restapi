@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.hslametshop.restapi.helper.requests.CreateProductsRequest;
 import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
-import com.hslametshop.restapi.model.entities.ProductImages;
 import com.hslametshop.restapi.service.ProductService;
 
 @RestController
@@ -43,7 +43,7 @@ public class ProductController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Product> create(@RequestBody Product product) {
+    public ResponseEntity<Product> create(@RequestBody CreateProductsRequest product) {
         try {
             Product p = productService.createProduct(product);
             if (p == null) {
@@ -55,23 +55,9 @@ public class ProductController {
         }
     }
 
-    @PostMapping("/img")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProductImages> createImage(@RequestBody ProductImages productImage) {
-        try {
-            ProductImages img = productService.createProductImage(productImage);
-            if (img == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            return ResponseEntity.ok().body(img);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Product> update(@RequestBody Product product, @PathVariable("id") UUID id) {
+    public ResponseEntity<Product> update(@RequestBody CreateProductsRequest product, @PathVariable("id") UUID id) {
         try {
             Product p = productService.updateProduct(product, id);
             if (p == null) {

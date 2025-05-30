@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.hslametshop.restapi.helper.requests.CreateProductsRequest;
 import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
 import com.hslametshop.restapi.model.entities.ProductImages;
@@ -63,16 +64,37 @@ public class ProductService {
         return productResponses;
     }
 
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
-    }
+    public Product createProduct(CreateProductsRequest product) {
+        Product newProduct = new Product();
+        newProduct.setCategory(product.getCategory());
+        newProduct.setName(product.getName());
+        newProduct.setPrice(product.getPrice());
+        newProduct.setStock(product.getStock());
+        newProduct.setDiscount(product.getDiscount());
+        newProduct.setDescription(product.getDescription());
 
-    public ProductImages createProductImage(ProductImages productImages) {
-        return productImagesRepository.save(productImages);
+        Product savedProduct = productRepository.save(newProduct);
+
+        for (String imageUrl : product.getImages()) {
+            ProductImages productImage = new ProductImages();
+            productImage.setImageUrl(imageUrl);
+            productImage.setImageName("Img:" + savedProduct.getName());
+            productImage.setProduct(savedProduct);
+            productImagesRepository.save(productImage);
+        }
+
+        return savedProduct;
+
     }
 
     public void deleteProduct(UUID id) {
         productRepository.deleteById(id);
+        List<ProductImages> existingImages = (List<ProductImages>) productImagesRepository.findAll();
+        for (ProductImages image : existingImages) {
+            if (image.getProduct().getProductId().equals(id)) {
+                productImagesRepository.delete(image);
+            }
+        }
     }
 
     public ProductResponse findOneProduct(UUID id) {
@@ -181,20 +203,33 @@ public class ProductService {
         return foundProducts;
     }
 
-    public Product updateProduct(Product product, UUID id) {
-        try {
-            Product data = productRepository.findById(id).get();
-            data.setName(product.getName());
-            data.setCategory(product.getCategory());
-            data.setDescription(product.getDescription());
-            data.setPrice(product.getPrice());
-            data.setStock(product.getStock());
-            data.setDiscount(product.getDiscount());
+    public Product updateProduct(CreateProductsRequest product, UUID id) {
+        Product existingProduct = productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+        existingProduct.setCategory(product.getCategory());
+        existingProduct.setName(product.getName());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setStock(product.getStock());
+        existingProduct.setDiscount(product.getDiscount());
+        existingProduct.setDescription(product.getDescription());
 
-            return productRepository.save(data);
-        } catch (NoSuchElementException e) {
-            throw new NoSuchElementException("Product not found with id: " + id);
+        Product updatedProduct = productRepository.save(existingProduct);
+
+        List<ProductImages> existingImages = (List<ProductImages>) productImagesRepository.findAll();
+        for (ProductImages image : existingImages) {
+            if (image.getProduct().getProductId().equals(id)) {
+                productImagesRepository.delete(image);
+            }
         }
+        for (String imageUrl : product.getImages()) {
+            ProductImages productImage = new ProductImages();
+            productImage.setImageUrl(imageUrl);
+            productImage.setProduct(updatedProduct);
+            productImage.setImageName("Img:" + updatedProduct.getName());
+            productImagesRepository.save(productImage);
+        }
+
+        return updatedProduct;
     }
 
     public List<ProductResponse> findProductsByPriceBetween(Double minPrice, Double maxPrice) {
