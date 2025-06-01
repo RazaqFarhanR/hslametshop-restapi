@@ -65,13 +65,13 @@ public class AuthController {
         LoginResponse loginResponse = new LoginResponse();
 
         loginResponse.setToken(token);
-        loginResponse.setExpiration(jwtService.getExpiration());
+        loginResponse.setExpiration(System.currentTimeMillis() + jwtService.getExpiration());
         loginResponse.setRefreshToken(refreshToken);
 
         RefreshToken refreshTokenEntity = new RefreshToken();
         refreshTokenEntity.setToken(refreshToken);
         refreshTokenEntity.setUser(authenticatedMember);
-        refreshTokenEntity.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 900000);
+        refreshTokenEntity.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 1800000);
         refreshTokenRepository.save(refreshTokenEntity);
         return ResponseEntity.ok(loginResponse);
     }
@@ -85,13 +85,13 @@ public class AuthController {
         LoginResponse loginResponse = new LoginResponse();
 
         loginResponse.setToken(token);
-        loginResponse.setExpiration(jwtService.getExpiration());
+        loginResponse.setExpiration(System.currentTimeMillis() + jwtService.getExpiration());
         loginResponse.setRefreshToken(refreshToken);
 
         RefreshToken refreshTokenEntity = new RefreshToken();
         refreshTokenEntity.setToken(refreshToken);
         refreshTokenEntity.setAdmin(authenticatedAdmin);
-        refreshTokenEntity.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 900000);
+        refreshTokenEntity.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 1800000);
         refreshTokenRepository.save(refreshTokenEntity);
         return ResponseEntity.ok(loginResponse);
     }
@@ -123,7 +123,7 @@ public class AuthController {
             RefreshToken r = new RefreshToken();
             r.setToken(newRefreshToken);
             r.setAdmin(admin);
-            r.setExpiryDate(jwtService.getExpiration() + 900000);
+            r.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 1800000);
             refreshTokenRepository.save(r);
         } else if (user instanceof Member) {
             member = (Member) user;
@@ -133,7 +133,7 @@ public class AuthController {
             RefreshToken r = new RefreshToken();
             r.setToken(newRefreshToken);
             r.setUser(member);
-            r.setExpiryDate(jwtService.getExpiration() + 900000);
+            r.setExpiryDate(System.currentTimeMillis() + jwtService.getExpiration() + 1800000);
             refreshTokenRepository.save(r);
         } else {
             System.err.println("User not found");
@@ -141,7 +141,7 @@ public class AuthController {
         }
         RefreshTokenResponse refreshTokenResponse = new RefreshTokenResponse();
         refreshTokenResponse.setToken(newToken);
-        refreshTokenResponse.setExpiration(jwtService.getExpiration());
+        refreshTokenResponse.setExpiration(System.currentTimeMillis() + jwtService.getExpiration());
         refreshTokenResponse.setRefreshToken(newRefreshToken);
 
         return ResponseEntity.ok(refreshTokenResponse);
