@@ -33,10 +33,11 @@ public class ProductService {
         List<Product> products = (List<Product>) productRepository.findAll();
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         if (products.isEmpty()) {
-            throw new NoSuchElementException("No products found");
+            return productResponses; // Jangan throw exception, cukup return list kosong
         }
         for (Product product : products) {
             ProductResponse productResponse = new ProductResponse();
+            productResponse.setImages(new ArrayList<>()); // Inisialisasi list gambar
             for (ProductImages productImage : productImages) {
                 if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                     productResponse.getImages().add(productImage.getImageUrl());
@@ -45,7 +46,7 @@ public class ProductService {
             productResponse.setId(product.getProductId());
             productResponse.setName(product.getName());
             productResponse.setDescription(product.getDescription());
-            productResponse.setCategory(product.getCategory().toString());
+            productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
 
             productResponse.setDiscount(product.getDiscount());
             if (product.getDiscount() > 0) {
@@ -56,7 +57,7 @@ public class ProductService {
                 productResponse.setOldPrice(null);
             }
             productResponse.setImageAlt("IMG:" + product.getName());
-            productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+            productResponse.setIsNew(product.getCreatedAt() != null && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
             productResponse.setStock(product.getStock());
 
             productResponses.add(productResponse);
@@ -206,27 +207,44 @@ public class ProductService {
     public Product updateProduct(CreateProductsRequest product, UUID id) {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Product not found"));
-        existingProduct.setCategory(product.getCategory());
-        existingProduct.setName(product.getName());
-        existingProduct.setPrice(product.getPrice());
-        existingProduct.setStock(product.getStock());
-        existingProduct.setDiscount(product.getDiscount());
-        existingProduct.setDescription(product.getDescription());
+
+        // Hanya update jika field tidak null
+        if (product.getCategory() != null) {
+            existingProduct.setCategory(product.getCategory());
+        }
+        if (product.getName() != null) {
+            existingProduct.setName(product.getName());
+        }
+        if (product.getPrice() != 0) {
+            existingProduct.setPrice(product.getPrice());
+        }
+        if (product.getStock() != 0) {
+            existingProduct.setStock(product.getStock());
+        }
+        if (product.getDiscount() != 0) {
+            existingProduct.setDiscount(product.getDiscount());
+        }
+        if (product.getDescription() != null) {
+            existingProduct.setDescription(product.getDescription());
+        }
 
         Product updatedProduct = productRepository.save(existingProduct);
 
-        List<ProductImages> existingImages = (List<ProductImages>) productImagesRepository.findAll();
-        for (ProductImages image : existingImages) {
-            if (image.getProduct().getProductId().equals(id)) {
-                productImagesRepository.delete(image);
+        // Update gambar hanya jika images tidak null
+        if (product.getImages() != null) {
+            List<ProductImages> existingImages = (List<ProductImages>) productImagesRepository.findAll();
+            for (ProductImages image : existingImages) {
+                if (image.getProduct().getProductId().equals(id)) {
+                    productImagesRepository.delete(image);
+                }
             }
-        }
-        for (String imageUrl : product.getImages()) {
-            ProductImages productImage = new ProductImages();
-            productImage.setImageUrl(imageUrl);
-            productImage.setProduct(updatedProduct);
-            productImage.setImageName("Img:" + updatedProduct.getName());
-            productImagesRepository.save(productImage);
+            for (String imageUrl : product.getImages()) {
+                ProductImages productImage = new ProductImages();
+                productImage.setImageUrl(imageUrl);
+                productImage.setProduct(updatedProduct);
+                productImage.setImageName("Img:" + updatedProduct.getName());
+                productImagesRepository.save(productImage);
+            }
         }
 
         return updatedProduct;
