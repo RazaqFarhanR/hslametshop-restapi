@@ -33,11 +33,13 @@ public class ProductService {
         List<Product> products = (List<Product>) productRepository.findAll();
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         if (products.isEmpty()) {
-            return productResponses; // Jangan throw exception, cukup return list kosong
+            return productResponses;
         }
         for (Product product : products) {
+            if (product.getStock() <= 0)
+                continue; // filter stock 0
             ProductResponse productResponse = new ProductResponse();
-            productResponse.setImages(new ArrayList<>()); // Inisialisasi list gambar
+            productResponse.setImages(new ArrayList<>());
             for (ProductImages productImage : productImages) {
                 if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                     productResponse.getImages().add(productImage.getImageUrl());
@@ -47,7 +49,6 @@ public class ProductService {
             productResponse.setName(product.getName());
             productResponse.setDescription(product.getDescription());
             productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
-
             productResponse.setDiscount(product.getDiscount());
             if (product.getDiscount() > 0) {
                 productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
@@ -57,9 +58,9 @@ public class ProductService {
                 productResponse.setOldPrice(null);
             }
             productResponse.setImageAlt("IMG:" + product.getName());
-            productResponse.setIsNew(product.getCreatedAt() != null && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+            productResponse.setIsNew(product.getCreatedAt() != null
+                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
             productResponse.setStock(product.getStock());
-
             productResponses.add(productResponse);
         }
         return productResponses;
@@ -99,12 +100,14 @@ public class ProductService {
     }
 
     public ProductResponse findOneProduct(UUID id) {
-        Product product = productRepository.findById(id).get();
-        ProductResponse productResponse = new ProductResponse();
-        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
-        if (product == null) {
-            throw new NoSuchElementException("No products found");
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("No product found"));
+        if (product.getStock() <= 0) {
+            throw new NoSuchElementException("No product found"); // Atau return null sesuai kebutuhan
         }
+        ProductResponse productResponse = new ProductResponse();
+        productResponse.setImages(new ArrayList<>());
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         for (ProductImages productImage : productImages) {
             if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                 productResponse.getImages().add(productImage.getImageUrl());
@@ -113,8 +116,7 @@ public class ProductService {
         productResponse.setId(product.getProductId());
         productResponse.setName(product.getName());
         productResponse.setDescription(product.getDescription());
-        productResponse.setCategory(product.getCategory().toString());
-
+        productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
         productResponse.setDiscount(product.getDiscount());
         if (product.getDiscount() > 0) {
             productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
@@ -124,22 +126,22 @@ public class ProductService {
             productResponse.setOldPrice(null);
         }
         productResponse.setImageAlt("IMG:" + product.getName());
-        productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+        productResponse.setIsNew(
+                product.getCreatedAt() != null && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
         productResponse.setStock(product.getStock());
         return productResponse;
     }
 
     public List<ProductResponse> findProductsByName(String name) {
         List<Product> products = (List<Product>) productRepository.findAll();
-
-        if (products.isEmpty()) {
-            throw new NoSuchElementException("No products found");
-        }
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
-            if (product.getName().contains(name)) {
+            if (product.getStock() <= 0)
+                continue; // filter stock 0
+            if (product.getName() != null && product.getName().contains(name)) {
                 ProductResponse productResponse = new ProductResponse();
+                productResponse.setImages(new ArrayList<>());
                 for (ProductImages productImage : productImages) {
                     if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                         productResponse.getImages().add(productImage.getImageUrl());
@@ -148,8 +150,7 @@ public class ProductService {
                 productResponse.setId(product.getProductId());
                 productResponse.setName(product.getName());
                 productResponse.setDescription(product.getDescription());
-                productResponse.setCategory(product.getCategory().toString());
-
+                productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
                 productResponse.setDiscount(product.getDiscount());
                 if (product.getDiscount() > 0) {
                     productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
@@ -159,7 +160,8 @@ public class ProductService {
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt() != null
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -169,14 +171,20 @@ public class ProductService {
 
     public List<ProductResponse> findProductsByCategory(String category) {
         List<Product> products = (List<Product>) productRepository.findAll();
-        if (products.isEmpty()) {
-            throw new NoSuchElementException("No products found");
-        }
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         List<ProductResponse> foundProducts = new ArrayList<>();
+        CategoryEnum categoryEnum = null;
+        try {
+            categoryEnum = CategoryEnum.valueOf(category);
+        } catch (Exception e) {
+            return foundProducts;
+        }
         for (Product product : products) {
-            if (product.getCategory().equals(CategoryEnum.valueOf(category))) {
+            if (product.getStock() <= 0)
+                continue; // filter stock 0
+            if (product.getCategory() != null && product.getCategory().equals(categoryEnum)) {
                 ProductResponse productResponse = new ProductResponse();
+                productResponse.setImages(new ArrayList<>());
                 for (ProductImages productImage : productImages) {
                     if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                         productResponse.getImages().add(productImage.getImageUrl());
@@ -186,7 +194,6 @@ public class ProductService {
                 productResponse.setName(product.getName());
                 productResponse.setDescription(product.getDescription());
                 productResponse.setCategory(product.getCategory().toString());
-
                 productResponse.setDiscount(product.getDiscount());
                 if (product.getDiscount() > 0) {
                     productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
@@ -196,7 +203,8 @@ public class ProductService {
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt() != null
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -215,13 +223,13 @@ public class ProductService {
         if (product.getName() != null) {
             existingProduct.setName(product.getName());
         }
-        if (product.getPrice() != 0) {
+        if (product.getPrice() != null) {
             existingProduct.setPrice(product.getPrice());
         }
-        if (product.getStock() != 0) {
+        if (product.getStock() != null) {
             existingProduct.setStock(product.getStock());
         }
-        if (product.getDiscount() != 0) {
+        if (product.getDiscount() != null) {
             existingProduct.setDiscount(product.getDiscount());
         }
         if (product.getDescription() != null) {
@@ -252,16 +260,15 @@ public class ProductService {
 
     public List<ProductResponse> findProductsByPriceBetween(Double minPrice, Double maxPrice) {
         List<Product> products = (List<Product>) productRepository.findAll();
-        if (products.isEmpty()) {
-            throw new NoSuchElementException("No products found");
-        }
         List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
         List<ProductResponse> foundProducts = new ArrayList<>();
         for (Product product : products) {
-            if (product.getPrice() - (product.getPrice() * product.getDiscount()
-                    / 100) >= minPrice && product.getPrice()
-                            - (product.getPrice() * product.getDiscount() / 100) <= maxPrice) {
+            if (product.getStock() <= 0)
+                continue; // filter stock 0
+            double finalPrice = product.getPrice() - (product.getPrice() * product.getDiscount() / 100);
+            if (finalPrice >= minPrice && finalPrice <= maxPrice) {
                 ProductResponse productResponse = new ProductResponse();
+                productResponse.setImages(new ArrayList<>());
                 for (ProductImages productImage : productImages) {
                     if (product.getProductId().equals(productImage.getProduct().getProductId())) {
                         productResponse.getImages().add(productImage.getImageUrl());
@@ -270,18 +277,18 @@ public class ProductService {
                 productResponse.setId(product.getProductId());
                 productResponse.setName(product.getName());
                 productResponse.setDescription(product.getDescription());
-                productResponse.setCategory(product.getCategory().toString());
-
+                productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
                 productResponse.setDiscount(product.getDiscount());
                 if (product.getDiscount() > 0) {
-                    productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                    productResponse.setPrice(finalPrice);
                     productResponse.setOldPrice(product.getPrice());
                 } else {
                     productResponse.setPrice(product.getPrice());
                     productResponse.setOldPrice(null);
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
-                productResponse.setIsNew(product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                productResponse.setIsNew(product.getCreatedAt() != null
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }

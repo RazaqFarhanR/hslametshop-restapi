@@ -29,44 +29,34 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<List<ProductResponse>> findAll() {
-        try {
-            List<ProductResponse> products = productService.findAllProduct();
-            if (products.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok().body(products);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        List<ProductResponse> products = productService.findAllProduct();
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.ok().body(products);
 
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> create(@RequestBody CreateProductsRequest product) {
-        try {
-            Product p = productService.createProduct(product);
-            if (p == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            return ResponseEntity.ok().body(p);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+
+        Product p = productService.createProduct(product);
+        if (p == null) {
+            return ResponseEntity.badRequest().build();
         }
+        return ResponseEntity.ok().body(p);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> update(@RequestBody CreateProductsRequest product, @PathVariable("id") UUID id) {
-        try {
-            Product p = productService.updateProduct(product, id);
-            if (p == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            return ResponseEntity.ok().body(p);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+
+        Product p = productService.updateProduct(product, id);
+        if (p == null) {
+            return ResponseEntity.badRequest().build();
         }
+        return ResponseEntity.ok().body(p);
     }
 
     @DeleteMapping("/{id}")
@@ -82,68 +72,56 @@ public class ProductController {
 
     @GetMapping("/one/{id}")
     public ResponseEntity<ProductResponse> findOne(@PathVariable("id") UUID id) {
-        try {
-            ProductResponse product = productService.findOneProduct(id);
-            if (product == null) {
-                return ResponseEntity.notFound().build();
-            }
 
-            return ResponseEntity.ok().body(product);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        ProductResponse product = productService.findOneProduct(id);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
         }
+
+        return ResponseEntity.ok().body(product);
     }
 
     @GetMapping("/{name}")
     public ResponseEntity<List<ProductResponse>> findByName(@PathVariable("name") String name) {
-        try {
-            List<ProductResponse> products = productService.findProductsByName(name);
-            if (products.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok().body(products);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+
+        List<ProductResponse> products = productService.findProductsByName(name);
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok().body(products);
     }
 
     @GetMapping("/category/{category}")
     public ResponseEntity<List<ProductResponse>> findByCategory(@PathVariable("category") String category) {
-        try {
-            List<ProductResponse> products = productService.findProductsByCategory(category);
-            if (products.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok().body(products);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+
+        List<ProductResponse> products = productService.findProductsByCategory(category);
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok().body(products);
     }
 
     @GetMapping("/price/{minPrice}/{maxPrice}")
     public ResponseEntity<List<ProductResponse>> findByPriceBetween(@PathVariable("minPrice") Double minPrice,
             @PathVariable("maxPrice") Double maxPrice) {
-        try {
-            if (minPrice < 0 || maxPrice < 0) {
-                return ResponseEntity.badRequest().build();
-            }
-            if (minPrice > maxPrice) {
-                return ResponseEntity.badRequest().build();
-            }
-            if (minPrice == maxPrice) {
-                return ResponseEntity.badRequest().build();
-            }
-            if (minPrice == null || maxPrice == null) {
-                return ResponseEntity.badRequest().build();
-            }
-            List<ProductResponse> products = productService.findProductsByPriceBetween(minPrice, maxPrice);
-            if (products.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok().body(products);
 
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        if (minPrice < 0 || maxPrice < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
         }
+        if (minPrice > maxPrice) {
+            throw new IllegalArgumentException("Min price cannot be greater than max price");
+        }
+        if (minPrice == maxPrice) {
+            throw new IllegalArgumentException("Min price cannot be equal to max price");
+        }
+        if (minPrice == null || maxPrice == null) {
+            throw new IllegalArgumentException("Price cannot be null");
+        }
+        List<ProductResponse> products = productService.findProductsByPriceBetween(minPrice, maxPrice);
+        if (products.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(products);
+
     }
 }
