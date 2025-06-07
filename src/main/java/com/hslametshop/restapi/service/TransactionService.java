@@ -42,23 +42,36 @@ public class TransactionService {
         member.setAddress(checkoutRequest.getCustomerAddress());
         userRepository.save(member);
 
+        // Cek stok sebelum membuat transaksi
+        for (var detailRequest : checkoutRequest.getCheckoutDetailRequests()) {
+            var product = productRepository.findById(detailRequest.getProductId())
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
+            if (detailRequest.getQty() > product.getStock()) {
+                throw new IllegalArgumentException("Stock for product " + product.getName() + " is not enough.");
+            }
+        }
+
         Transaction transaction = new Transaction();
         transaction.setMember(member);
         transaction.setTotalAmount(checkoutRequest.getTotalAmount());
         transaction.setStatus(checkoutRequest.getStatus());
-        // Save the transaction
         Transaction savedTransaction = transactionRepository.save(transaction);
 
         // Save the transaction details
         checkoutRequest.getCheckoutDetailRequests().forEach(detailRequest -> {
             TransactionDetail transactionDetail = new TransactionDetail();
-            transactionDetail.setProduct(productRepository.findById(detailRequest.getProductId()).get());
+            var product = productRepository.findById(detailRequest.getProductId()).get();
+            transactionDetail.setProduct(product);
             transactionDetail.setQty(detailRequest.getQty());
             transactionDetail.setSubtotal(detailRequest.getSubtotal());
             transactionDetail.setNotes(detailRequest.getNotes());
             transactionDetail.setTransaction(savedTransaction);
 
             transactionDetailRepository.save(transactionDetail);
+
+            // Kurangi stok produk
+            product.setStock(product.getStock() - detailRequest.getQty());
+            productRepository.save(product);
         });
 
         return savedTransaction;

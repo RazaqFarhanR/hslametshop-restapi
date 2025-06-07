@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +46,7 @@ public class TransactionController {
 
     @PostMapping("/checkout")
     @PreAuthorize("hasRole('MEMBER')")
-    public ResponseEntity<Transaction> checkoutTransaction(CheckoutRequest checkoutRequest) {
+    public ResponseEntity<Transaction> checkoutTransaction(@RequestBody CheckoutRequest checkoutRequest) {
         Transaction transaction = transactionService.createTransaction(checkoutRequest);
         if (transaction == null) {
             return ResponseEntity.badRequest().build();
