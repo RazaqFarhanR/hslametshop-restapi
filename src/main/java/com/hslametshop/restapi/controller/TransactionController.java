@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hslametshop.restapi.helper.requests.CheckoutRequest;
+import com.hslametshop.restapi.helper.responses.OrderResponse;
 import com.hslametshop.restapi.model.entities.Transaction;
 import com.hslametshop.restapi.service.TransactionService;
 
@@ -30,7 +31,7 @@ public class TransactionController {
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         List<Transaction> transactions = transactionService.findAllTransaction();
         if (transactions.isEmpty()) {
-            return ResponseEntity.noContent().build();
+            throw new RuntimeException("No transactions found");
         }
         return ResponseEntity.ok().body(transactions);
     }
@@ -40,7 +41,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> getTransactionById(@PathVariable("id") UUID id) {
         Transaction transaction = transactionService.findTransactionById(id);
         if (transaction == null) {
-            return ResponseEntity.notFound().build();
+            throw new RuntimeException("Transaction not found with id: " + id);
         }
         return ResponseEntity.ok().body(transaction);
     }
@@ -50,7 +51,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> checkoutTransaction(@RequestBody CheckoutRequest checkoutRequest) {
         Transaction transaction = transactionService.createTransaction(checkoutRequest);
         if (transaction == null) {
-            return ResponseEntity.badRequest().build();
+            throw new RuntimeException("Failed to create transaction");
         }
         return ResponseEntity.ok().body(transaction);
     }
@@ -60,8 +61,18 @@ public class TransactionController {
     public ResponseEntity<Transaction> checkoutTransaction(@PathVariable("id") UUID id) {
         Transaction sts = transactionService.updateStatus(id);
         if (sts == null) {
-            return ResponseEntity.badRequest().build();
+            throw new RuntimeException("Failed to update transaction status for id: " + id);
         }
         return ResponseEntity.ok().body(sts);
+    }
+
+    @GetMapping("/orders/{id}")
+    @PreAuthorize("hasRole('MEMBER')")
+    public ResponseEntity<List<OrderResponse>> getTransactionByMemberId(@PathVariable("id") UUID id) {
+        List<OrderResponse> transaction = transactionService.findTransactionByMemberId(id);
+        if (transaction == null) {
+            throw new RuntimeException("No transactions found for member with id: " + id);
+        }
+        return ResponseEntity.ok().body(transaction);
     }
 }

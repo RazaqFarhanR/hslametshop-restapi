@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hslametshop.restapi.model.interfaces.TransactionStatusEnum;
@@ -46,6 +48,7 @@ public class Transaction implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "user_id")
+    @JsonIgnore
     private Member member;
 
     @Column(name = "transaction_status")
@@ -55,11 +58,20 @@ public class Transaction implements Serializable {
     @OneToMany(mappedBy = "transaction", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<TransactionDetail> details;
 
-    public Transaction(UUID invoiceId, LocalDateTime trxDate, double totalAmount, TransactionStatusEnum status) {
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    private LocalDateTime updatedAt;
+
+    public Transaction(UUID invoiceId, LocalDateTime trxDate, double totalAmount, TransactionStatusEnum status,
+            Member member, List<TransactionDetail> details, LocalDateTime updatedAt) {
         this.invoiceId = invoiceId;
         this.trxDate = trxDate;
         this.totalAmount = totalAmount;
         this.status = status;
+        this.member = member;
+        this.details = details;
+        this.updatedAt = updatedAt;
     }
 
     public Transaction() {
@@ -112,6 +124,14 @@ public class Transaction implements Serializable {
 
     public void setTotalAmount(double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
 }

@@ -3,6 +3,7 @@ package com.hslametshop.restapi.model.entities;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hslametshop.restapi.model.interfaces.UserRolesEnum;
 
 import jakarta.persistence.CascadeType;
@@ -24,6 +25,7 @@ public class Member extends User {
     private boolean isBanned;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Transaction> transactions;
 
     public Member(String name, String pnumber, String email, String pass, UUID userId, String address,

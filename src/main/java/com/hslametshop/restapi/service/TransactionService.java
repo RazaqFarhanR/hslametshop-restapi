@@ -1,5 +1,6 @@
 package com.hslametshop.restapi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hslametshop.restapi.helper.requests.CheckoutRequest;
+import com.hslametshop.restapi.helper.responses.OrderItemResponse;
+import com.hslametshop.restapi.helper.responses.OrderResponse;
 import com.hslametshop.restapi.model.entities.Member;
 import com.hslametshop.restapi.model.entities.Transaction;
 import com.hslametshop.restapi.model.entities.TransactionDetail;
@@ -83,7 +86,8 @@ public class TransactionService {
     }
 
     public Transaction updateStatus(UUID id) {
-        Transaction order = transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
+        Transaction order = transactionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
 
         switch (order.getStatus()) {
             case PROSES:
@@ -99,5 +103,40 @@ public class TransactionService {
         }
 
         return transactionRepository.save(order);
+    }
+
+    public List<OrderResponse> findTransactionByMemberId(UUID memberId) {
+        List<Transaction> transactions = (List<Transaction>) transactionRepository.findAll();
+        if (transactions.isEmpty()) {
+            throw new RuntimeException("No transactions found in the system");
+        }
+        List<OrderResponse> filteredTransactions = new ArrayList<OrderResponse>();
+        for (Transaction transaction : transactions) {
+            if (transaction.getMember().getId().equals(memberId)) {
+                OrderResponse orderResponse = new OrderResponse();
+                orderResponse.setInvoiceId(transaction.getInvoiceId());
+                orderResponse.setMemberId(transaction.getMember().getId());
+                orderResponse.setTotal(transaction.getTotalAmount());
+                orderResponse.setStatus(transaction.getStatus());
+                orderResponse.setCreatedAt(transaction.getTrxDate());
+                orderResponse.setUpdatedAt(transaction.getUpdatedAt());
+
+                List<OrderItemResponse> items = new ArrayList<>();
+                for (TransactionDetail detail : transaction.getDetails()) {
+                    OrderItemResponse item = new OrderItemResponse();
+                    item.setProductId(detail.getProduct().getProductId());
+                    item.setQuantity(detail.getQty());
+                    item.setProductName(detail.getProduct().getName());
+                    item.setPrice(detail.getSubtotal() / detail.getQty());
+                    items.add(item);
+                }
+                orderResponse.setItems(items);
+                filteredTransactions.add(orderResponse);
+            }
+        }
+        if (filteredTransactions.isEmpty()) {
+            throw new RuntimeException("No transactions found for member with ID: " + memberId);
+        }
+        return filteredTransactions;
     }
 }
