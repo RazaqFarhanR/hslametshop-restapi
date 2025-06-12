@@ -12,6 +12,7 @@ import com.hslametshop.restapi.helper.requests.LogoutRequest;
 import com.hslametshop.restapi.helper.requests.RefreshTokenRequest;
 import com.hslametshop.restapi.helper.requests.RegisterRequest;
 import com.hslametshop.restapi.helper.responses.LoginResponse;
+import com.hslametshop.restapi.helper.responses.LogoutResponse;
 import com.hslametshop.restapi.helper.responses.RefreshTokenResponse;
 import com.hslametshop.restapi.model.entities.Admin;
 import com.hslametshop.restapi.model.entities.Member;
@@ -148,8 +149,10 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestBody LogoutRequest token) {
+    public ResponseEntity<LogoutResponse> logout(@RequestBody LogoutRequest token) {
         refreshTokenRepository.deleteByToken(token.getToken());
-        return ResponseEntity.ok("Logged out successfully");
+        LogoutResponse logoutResponse = new LogoutResponse();
+        logoutResponse.setMessage("Logged out successfully");
+        return ResponseEntity.ok(logoutResponse);
     }
 }
