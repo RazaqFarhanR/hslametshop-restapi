@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.hslametshop.restapi.helper.requests.CreateProductsRequest;
+import com.hslametshop.restapi.helper.responses.LogoutResponse;
 import com.hslametshop.restapi.helper.responses.ProductResponse;
 import com.hslametshop.restapi.model.entities.Product;
 import com.hslametshop.restapi.service.ProductService;
@@ -70,12 +71,14 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> delete(@PathVariable("id") UUID id) {
+    public ResponseEntity<LogoutResponse> delete(@PathVariable("id") UUID id) {
         try {
             productService.deleteProduct(id);
-            return ResponseEntity.ok().body("Product deleted successfully");
+            LogoutResponse deleteProductResponse = new LogoutResponse("Product deleted successfully");
+            return ResponseEntity.ok(deleteProductResponse);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+            LogoutResponse errorRes = new LogoutResponse("Error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorRes);
         }
     }
 
