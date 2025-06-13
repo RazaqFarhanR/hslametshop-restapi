@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hslametshop.restapi.helper.requests.UpdateAddressRequest;
 import com.hslametshop.restapi.helper.requests.UpdatePasswordRequest;
 import com.hslametshop.restapi.helper.requests.UpdateProfileRequest;
+import com.hslametshop.restapi.helper.responses.LogoutResponse;
 import com.hslametshop.restapi.model.entities.Admin;
 import com.hslametshop.restapi.model.entities.Member;
 import com.hslametshop.restapi.model.entities.User;
@@ -160,31 +161,37 @@ public class UserController {
 
     @PutMapping("/ban/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> banMember(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> banMember(@PathVariable("id") UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user instanceof Admin) {
-            return ResponseEntity.badRequest().body("Cannot ban an admin");
+            LogoutResponse logoutResponse = new LogoutResponse("Cannot ban an admin");
+            return ResponseEntity.badRequest().body(logoutResponse);
         } else if (user instanceof Member) {
             userService.banMember(user.getId(), true);
-            return ResponseEntity.ok("Member banned successfully");
+            LogoutResponse logoutResponse = new LogoutResponse("Member banned successfully");
+            return ResponseEntity.ok(logoutResponse);
         } else {
-            return ResponseEntity.badRequest().body("Invalid user type");
+            LogoutResponse logoutResponse = new LogoutResponse("Invalid user type");
+            return ResponseEntity.badRequest().body(logoutResponse);
         }
     }
 
     @PutMapping("/unban/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> unBanMember(@PathVariable("id") UUID id) {
+    public ResponseEntity<?> unBanMember(@PathVariable("id") UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (user instanceof Admin) {
-            return ResponseEntity.badRequest().body("Cannot ban an admin");
+            LogoutResponse logoutResponse = new LogoutResponse("Cannot unban an admin");
+            return ResponseEntity.badRequest().body(logoutResponse);
         } else if (user instanceof Member) {
             userService.banMember(user.getId(), false);
-            return ResponseEntity.ok("Member unbanned successfully");
+            LogoutResponse logoutResponse = new LogoutResponse("Member unbanned successfully");
+            return ResponseEntity.ok(logoutResponse);
         } else {
-            return ResponseEntity.badRequest().body("Invalid user type");
+            LogoutResponse logoutResponse = new LogoutResponse("Invalid user type");
+            return ResponseEntity.badRequest().body(logoutResponse);
         }
     }
 
