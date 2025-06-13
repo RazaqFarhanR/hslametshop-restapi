@@ -3,6 +3,8 @@ package com.hslametshop.restapi.model.entities;
 import java.io.Serializable;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class TransactionDetail implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "invoice_id", referencedColumnName = "invoice_id")
+    @JsonIgnore
     private Transaction transaction;
 
     @ManyToOne
