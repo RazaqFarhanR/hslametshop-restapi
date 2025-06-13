@@ -56,10 +56,10 @@ public class TransactionController {
         return ResponseEntity.ok().body(transaction);
     }
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/status/{id}/{isAborted}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Transaction> checkoutTransaction(@PathVariable("id") UUID id) {
-        Transaction sts = transactionService.updateStatus(id);
+    public ResponseEntity<Transaction> checkoutTransaction(@PathVariable("id") UUID id, @PathVariable("isAborted") boolean isAborted) {
+        Transaction sts = transactionService.updateStatus(id, isAborted);
         if (sts == null) {
             throw new RuntimeException("Failed to update transaction status for id: " + id);
         }
