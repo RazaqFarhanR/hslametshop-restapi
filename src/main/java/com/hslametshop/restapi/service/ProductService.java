@@ -1,5 +1,6 @@
 package com.hslametshop.restapi.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -59,7 +60,7 @@ public class ProductService {
             }
             productResponse.setImageAlt("IMG:" + product.getName());
             productResponse.setIsNew(product.getCreatedAt() != null
-                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+                    && product.getCreatedAt().isAfter(LocalDateTime.now().minusDays(2)));
             productResponse.setStock(product.getStock());
             productResponses.add(productResponse);
         }
@@ -95,7 +96,7 @@ public class ProductService {
             }
             productResponse.setImageAlt("IMG:" + product.getName());
             productResponse.setIsNew(product.getCreatedAt() != null
-                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+                    && product.getCreatedAt().isAfter(LocalDateTime.now().minusDays(2)));
             productResponse.setStock(product.getStock());
             productResponses.add(productResponse);
         }
@@ -197,7 +198,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+                        && product.getCreatedAt().isAfter(LocalDateTime.now().minusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -240,7 +241,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+                        && product.getCreatedAt().isAfter(LocalDateTime.now().minusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -324,7 +325,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+                        && product.getCreatedAt().isAfter(LocalDateTime.now().minusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
