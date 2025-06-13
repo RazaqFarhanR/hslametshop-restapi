@@ -85,12 +85,21 @@ public class TransactionService {
         return transactionRepository.findById(id).orElseThrow(() -> new RuntimeException("Transaction not found"));
     }
 
-    public Transaction updateStatus(UUID id) {
+    public Transaction updateStatus(UUID id, boolean isAborted) {
         Transaction order = transactionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         switch (order.getStatus()) {
             case PROSES:
+                if (isAborted) {
+                    order.setStatus(TransactionStatusEnum.DIBATALKAN);
+                    order.getDetails().forEach(detail -> {
+                    var product = productRepository.findById(detail.getProduct().getProductId()).get();
+                    product.setStock(product.getStock() + detail.getQty());
+                    productRepository.save(product);
+                });
+                break;
+                }
                 order.setStatus(TransactionStatusEnum.DIKIRIM);
                 break;
             case DIKIRIM:
