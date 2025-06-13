@@ -59,7 +59,43 @@ public class ProductService {
             }
             productResponse.setImageAlt("IMG:" + product.getName());
             productResponse.setIsNew(product.getCreatedAt() != null
-                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
+            productResponse.setStock(product.getStock());
+            productResponses.add(productResponse);
+        }
+        return productResponses;
+    }
+
+    public List<ProductResponse> findAllProductForAdmin() {
+        List<ProductResponse> productResponses = new ArrayList<>();
+        List<Product> products = (List<Product>) productRepository.findAll();
+        List<ProductImages> productImages = (List<ProductImages>) productImagesRepository.findAll();
+        if (products.isEmpty()) {
+            return productResponses;
+        }
+        for (Product product : products) {
+            ProductResponse productResponse = new ProductResponse();
+            productResponse.setImages(new ArrayList<>());
+            for (ProductImages productImage : productImages) {
+                if (product.getProductId().equals(productImage.getProduct().getProductId())) {
+                    productResponse.getImages().add(productImage.getImageUrl());
+                }
+            }
+            productResponse.setId(product.getProductId());
+            productResponse.setName(product.getName());
+            productResponse.setDescription(product.getDescription());
+            productResponse.setCategory(product.getCategory() != null ? product.getCategory().toString() : null);
+            productResponse.setDiscount(product.getDiscount());
+            if (product.getDiscount() > 0) {
+                productResponse.setPrice(product.getPrice() - (product.getPrice() * product.getDiscount() / 100));
+                productResponse.setOldPrice(product.getPrice());
+            } else {
+                productResponse.setPrice(product.getPrice());
+                productResponse.setOldPrice(null);
+            }
+            productResponse.setImageAlt("IMG:" + product.getName());
+            productResponse.setIsNew(product.getCreatedAt() != null
+                    && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
             productResponse.setStock(product.getStock());
             productResponses.add(productResponse);
         }
@@ -127,7 +163,7 @@ public class ProductService {
         }
         productResponse.setImageAlt("IMG:" + product.getName());
         productResponse.setIsNew(
-                product.getCreatedAt() != null && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                product.getCreatedAt() != null && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
         productResponse.setStock(product.getStock());
         return productResponse;
     }
@@ -139,7 +175,7 @@ public class ProductService {
         for (Product product : products) {
             if (product.getStock() <= 0)
                 continue; // filter stock 0
-            if (product.getName() != null && product.getName().contains(name)) {
+            if (product.getName() != null && product.getName().toLowerCase().startsWith(name)) {
                 ProductResponse productResponse = new ProductResponse();
                 productResponse.setImages(new ArrayList<>());
                 for (ProductImages productImage : productImages) {
@@ -161,7 +197,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -204,7 +240,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }
@@ -288,7 +324,7 @@ public class ProductService {
                 }
                 productResponse.setImageAlt("IMG:" + product.getName());
                 productResponse.setIsNew(product.getCreatedAt() != null
-                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(30)));
+                        && product.getCreatedAt().isBefore(product.getCreatedAt().plusDays(2)));
                 productResponse.setStock(product.getStock());
                 foundProducts.add(productResponse);
             }

@@ -34,7 +34,16 @@ public class ProductController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok().body(products);
+    }
 
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<ProductResponse>> findAllForAdmin() {
+        List<ProductResponse> products = productService.findAllProductForAdmin();
+        if (products.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok().body(products);
     }
 
     @PostMapping
