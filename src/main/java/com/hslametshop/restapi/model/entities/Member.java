@@ -39,6 +39,7 @@ public class Member extends User {
         this.setRole(UserRolesEnum.MEMBER);
     }
 
+    @Override
     public void setName(String name) {
         super.setName(name);
     }
@@ -55,10 +56,12 @@ public class Member extends User {
         super.setPhoneNumber(pnumber);
     }
 
+    @Override
     public void setEmail(String email) {
         super.setEmail(email);
     }
 
+    @Override
     public void setPass(String pass) {
         super.setPass(pass);
     }
