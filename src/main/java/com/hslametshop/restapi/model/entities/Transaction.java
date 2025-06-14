@@ -8,7 +8,6 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.hslametshop.restapi.model.interfaces.TransactionStatusEnum;
@@ -48,7 +47,6 @@ public class Transaction implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "member_id", referencedColumnName = "user_id")
-    @JsonIgnore
     private Member member;
 
     @Column(name = "transaction_status")
